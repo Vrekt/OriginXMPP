@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'me.vrekt'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.igniterealtime.smack', name: 'smack-tcp', version: '4.3.1'
+    compile group: 'org.igniterealtime.smack', name: 'smack-extensions', version: '4.3.1'
+    compile 'io.github.robertograham:nadir:1.0.2'
+}
