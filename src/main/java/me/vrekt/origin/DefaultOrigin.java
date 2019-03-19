@@ -8,26 +8,20 @@ import me.vrekt.origin.exception.OriginException;
 import me.vrekt.origin.friend.DefaultFriendService;
 import me.vrekt.origin.friend.FriendService;
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.ping.PingManager;
-import org.jxmpp.jid.BareJid;
-import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.parts.Resourcepart;
 
 import java.io.IOException;
 
 public final class DefaultOrigin implements Origin {
 
-    public static final String CHAT_DOMAIN = "chat.dm.origin.com";
-    public static final String HOST_DOMAIN = "0394d6e52c011e300.gs.ea.com";
-    public static final int SERVICE_PORT = 5222;
-
     private Nadir nadir;
     private Account account;
-    private BareJid user;
+    private Jid user;
 
     private DefaultChatService chatService;
     private DefaultFriendService friendService;
@@ -62,30 +56,28 @@ public final class DefaultOrigin implements Origin {
         try {
             nadir.accounts().findOneBySessionToken().ifPresent(acc -> this.account = acc);
 
-            final var token = nadir.session().accessToken();
             final var userId = Long.toString(account.userId());
-
             connection = new XMPPTCPConnection(
                     XMPPTCPConnectionConfiguration.builder()
-                            .setUsernameAndPassword(userId, token)
+                            .setUsernameAndPassword(userId, nadir.password())
                             .setXmppDomain(CHAT_DOMAIN)
                             .setHost(HOST_DOMAIN)
                             .setPort(SERVICE_PORT)
+                            .setResource(Resourcepart.fromOrThrowUnchecked("origin"))
                             .build());
 
-            connection.connect().login(userId, nadir.password(), Resourcepart.fromOrThrowUnchecked("origin"));
-            this.user = JidCreate.bareFrom(userId + "@" + CHAT_DOMAIN);
+            connection.connect().login();
+            this.user = connection.getUser();
 
-            connection.setFromMode(XMPPConnection.FromMode.USER);
             final var pingManager = PingManager.getInstanceFor(connection);
             pingManager.setPingInterval(60);
 
             chatService = new DefaultChatService(connection);
-            friendService = new DefaultFriendService(connection);
+            friendService = new DefaultFriendService(this);
 
             System.err.println("Connected to the origin XMPP service.");
         } catch (final IOException | SmackException | XMPPException | InterruptedException exception) {
-            throw new OriginException("Could not connect to XMPP service!", exception.getCause());
+            throw new OriginException("Cannot connect!", exception);
         }
     }
 
@@ -101,17 +93,17 @@ public final class DefaultOrigin implements Origin {
     }
 
     @Override
-    public Nadir getNadir() {
+    public Nadir nadir() {
         return nadir;
     }
 
     @Override
-    public Account getAccount() {
+    public Account account() {
         return account;
     }
 
     @Override
-    public BareJid getUser() {
+    public Jid user() {
         return user;
     }
 
@@ -126,7 +118,7 @@ public final class DefaultOrigin implements Origin {
     }
 
     @Override
-    public XMPPTCPConnection getConnection() {
+    public XMPPTCPConnection connection() {
         return connection;
     }
 }

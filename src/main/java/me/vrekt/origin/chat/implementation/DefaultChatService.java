@@ -1,6 +1,6 @@
 package me.vrekt.origin.chat.implementation;
 
-import me.vrekt.origin.DefaultOrigin;
+import me.vrekt.origin.Origin;
 import me.vrekt.origin.chat.ChatService;
 import me.vrekt.origin.exception.OriginException;
 import org.jivesoftware.smack.SmackException;
@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class DefaultChatService implements ChatService {
 
-    private final CopyOnWriteArrayList<IncomingMessageListener> listeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ChatListener> listeners = new CopyOnWriteArrayList<>();
     private final MessageListener messageListener = new MessageListener();
     private final ChatManager chatManager;
 
@@ -26,18 +26,18 @@ public final class DefaultChatService implements ChatService {
     }
 
     @Override
-    public void addMessageListener(IncomingMessageListener messageListener) {
+    public void addChatListener(ChatListener messageListener) {
         listeners.add(messageListener);
     }
 
     @Override
-    public void removeMessageListener(IncomingMessageListener messageListener) {
+    public void removeChatListener(ChatListener messageListener) {
         listeners.remove(messageListener);
     }
 
     @Override
     public void sendMessage(Long userId, String message) throws OriginException {
-        final var to = JidCreate.entityBareFromOrThrowUnchecked(userId + "@" + DefaultOrigin.CHAT_DOMAIN);
+        final var to = JidCreate.entityBareFromOrThrowUnchecked(userId + "@" + Origin.CHAT_DOMAIN);
         sendMessage(to, message);
     }
 
@@ -59,7 +59,11 @@ public final class DefaultChatService implements ChatService {
     private final class MessageListener implements IncomingChatMessageListener {
         @Override
         public void newIncomingMessage(EntityBareJid from, Message message, Chat chat) {
-            listeners.forEach(listener -> listener.onMessageReceived(new me.vrekt.origin.chat.implementation.message.Message(from, message.getBody(), chat)));
+            if (message.getBody().isEmpty()) {
+                listeners.forEach(listener -> listener.onTyping(from));
+            } else {
+                listeners.forEach(listener -> listener.onMessageReceived(new me.vrekt.origin.chat.implementation.message.Message(from, message.getBody(), chat)));
+            }
         }
     }
 

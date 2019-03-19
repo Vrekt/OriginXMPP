@@ -1,24 +1,24 @@
 package me.vrekt.origin.chat;
 
-import me.vrekt.origin.chat.implementation.IncomingMessageListener;
+import me.vrekt.origin.chat.implementation.ChatListener;
 import me.vrekt.origin.exception.OriginException;
 import org.jxmpp.jid.EntityBareJid;
 
 public interface ChatService extends AutoCloseable {
 
     /**
-     * Add an {@link IncomingMessageListener}
+     * Add an {@link ChatListener}
      *
      * @param messageListener the listener
      */
-    void addMessageListener(IncomingMessageListener messageListener);
+    void addChatListener(ChatListener messageListener);
 
     /**
-     * Remove an {@link IncomingMessageListener}
+     * Remove an {@link ChatListener}
      *
      * @param messageListener the listener
      */
-    void removeMessageListener(IncomingMessageListener messageListener);
+    void removeChatListener(ChatListener messageListener);
 
     /**
      * Attempts to send a message to the specified user ID.

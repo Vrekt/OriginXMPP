@@ -6,10 +6,13 @@ import me.vrekt.origin.chat.ChatService;
 import me.vrekt.origin.exception.OriginException;
 import me.vrekt.origin.friend.FriendService;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jxmpp.jid.BareJid;
 import org.jxmpp.jid.Jid;
 
 public interface Origin {
+
+    String CHAT_DOMAIN = "chat.dm.origin.com";
+    String HOST_DOMAIN = "0394d6e52c011e300.gs.ea.com";
+    int SERVICE_PORT = 5222;
 
     /**
      * Attempts to connect the XMPP service.
@@ -26,18 +29,18 @@ public interface Origin {
     /**
      * @return the internal instance of {@link Nadir}
      */
-    Nadir getNadir();
+    Nadir nadir();
 
     /**
      * @return the current {@link Account} in use by the XMPP service.
      */
-    Account getAccount();
+    Account account();
 
     /**
      * @return the current {@link Jid} of the connected user.
      * This will not include any resource.
      */
-    BareJid getUser();
+    Jid user();
 
     /**
      * @return the internal instance of {@link ChatService}.
@@ -52,7 +55,7 @@ public interface Origin {
     /**
      * @return the internal connection instance.
      */
-    XMPPTCPConnection getConnection();
+    XMPPTCPConnection connection();
 
     /**
      * Builds a new instance of {@link Origin}
