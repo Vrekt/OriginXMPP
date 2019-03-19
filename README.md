@@ -22,9 +22,24 @@ origin.connect();
 
 # Send/reply to messages
 ```java
-origin.chat().addMessageListener(message -> {
+origin.chat().addChatListener(message -> {
     System.out.println("Message: " + message.getMessage());
     message.reply("abc");
+});
+```
+
+# Listeners for when somebody is typing
+```java
+ origin.chat().addChatListener(new ChatListener() {
+            @Override
+            public void onMessageReceived(Message message) {
+                System.err.println(message.getMessage());
+            }
+
+            @Override
+            public void onTyping(EntityBareJid from) {
+                System.err.println("typing");
+            }
 });
 ```
 
