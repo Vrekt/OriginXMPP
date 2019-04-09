@@ -11,7 +11,6 @@ import org.jxmpp.jid.Jid;
 public interface Origin {
 
     String CHAT_DOMAIN = "chat.dm.origin.com";
-    String HOST_DOMAIN = "0394d6e52c011e300.gs.ea.com";
     int SERVICE_PORT = 5222;
 
     /**
