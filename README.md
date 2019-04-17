@@ -5,6 +5,7 @@ A library for interacting with Origins XMPP service, chat with players, send/acc
 - Support for game presences, have custom text as your status!
 - Support for chatting with players.
 - Support for friends, listen for friend requests, send them, or accept one!
+- Basic Lobby support, receive invites, get lobby information.
 - Everything else `Nadir` supports.
 
 # Credits
@@ -88,5 +89,17 @@ origin.presence().setGameTextPresence(new GameTextPresence("Your text here", "Yo
 
             origin.onReconnect(() -> {
                 // stop code temporarily
+            });
+```
+
+# Lobbies
+```
+            final var lobby = origin.lobby().getLobby(1008999560409L);
+
+            origin.lobby().addLobbyListener(new LobbyListener() {
+                @Override
+                public void onInvitation(String joinLink, String inviteId, Long userId) {
+                    final var lobby = origin.lobby().getLobby(userId);
+                }
             });
 ```
