@@ -1,6 +1,12 @@
 # Origin
 A library for interacting with Origins XMPP service, chat with players, send/accept friend requests and more!
 
+# Features
+- Support for game presences, have custom text as your status!
+- Support for chatting with players.
+- Support for friends, listen for friend requests, send them, or accept one!
+- Everything else `Nadir` supports.
+
 # Credits
 Origin uses `Nadir` made by [RobertoGraham](https://github.com/RobertoGraham/nadir), go check it out!
 
@@ -54,6 +60,11 @@ try {
     }
 ```
 
+# Accept one
+```java
+origin.friend().acceptFriendRequest(1008999560409L);
+```
+
 # Friend listeners
 ```java
 origin.friend().addFriendListener(new FriendListener() {
@@ -62,4 +73,9 @@ origin.friend().addFriendListener(new FriendListener() {
         System.out.println("Accepted!");
        }
 });
+```
+
+# Presence
+```
+origin.presence().setGameTextPresence(new GameTextPresence("Your text here", "Your text here"));
 ```
