@@ -49,8 +49,8 @@ public final class DefaultFriendService implements FriendService {
     public void removeFriend(Long userId) throws OriginException {
         try {
             final var to = JidCreate.bareFromOrThrowUnchecked(userId + "@" + Origin.CHAT_DOMAIN);
-            final var unavailable = new Presence(to, Presence.Type.subscribed);
-            final var unsubscribe = new Presence(to, Presence.Type.available);
+            final var unavailable = new Presence(to, Presence.Type.unavailable);
+            final var unsubscribe = new Presence(to, Presence.Type.unsubscribe);
 
             connection.sendStanza(unavailable);
             connection.sendStanza(unsubscribe);
