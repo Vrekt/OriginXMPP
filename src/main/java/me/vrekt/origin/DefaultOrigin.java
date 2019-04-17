@@ -9,15 +9,17 @@ import me.vrekt.origin.extension.ActivityExtension;
 import me.vrekt.origin.friend.implementation.FriendResource;
 import me.vrekt.origin.friend.implementation.FriendResourceImpl;
 import me.vrekt.origin.listener.ConnectListener;
+import me.vrekt.origin.lobby.implementation.LobbyResource;
+import me.vrekt.origin.lobby.implementation.LobbyResourceImpl;
 import me.vrekt.origin.presence.GameTextPresence;
 import me.vrekt.origin.presence.implementation.PresenceResource;
 import me.vrekt.origin.presence.implementation.PresenceResourceImpl;
-import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.StreamError;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -51,6 +53,7 @@ public final class DefaultOrigin implements Origin {
     private ChatResourceImpl chatResource;
     private FriendResourceImpl friendResource;
     private PresenceResourceImpl presenceResource;
+    private LobbyResourceImpl lobbyResource;
 
     private XMPPTCPConnection connection;
     private PingManager pings;
@@ -122,7 +125,6 @@ public final class DefaultOrigin implements Origin {
         try {
             final var userId = Long.toString(account.userId());
 
-            SmackConfiguration.DEBUG = true;
             connection = new XMPPTCPConnection(
                     XMPPTCPConnectionConfiguration.builder()
                             .setUsernameAndPassword(userId, nadir.password())
@@ -130,11 +132,10 @@ public final class DefaultOrigin implements Origin {
                             .setHost(host)
                             .setPort(SERVICE_PORT)
                             .setResource("origin")
-                            .setSendPresence(initialPresence != null)
+                            .setSendPresence(false)
                             .build());
 
             connection.setFromMode(XMPPConnection.FromMode.USER);
-
             // accept all roster entries.
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
@@ -142,16 +143,19 @@ public final class DefaultOrigin implements Origin {
             final var mgr = EntityCapsManager.getInstanceFor(connection);
             mgr.enableEntityCaps();
             mgr.setEntityNode("http://www.origin.com/origin");
+            ProviderManager.addExtensionProvider(ActivityExtension.ELEMENT, ActivityExtension.NAMESPACE, ActivityExtension.provider());
 
-            Presence sendPresence = null;
+            Presence sendPresence;
             if (initialPresence != null) {
                 sendPresence = new Presence(Presence.Type.available, initialPresence.status(), 0, Presence.Mode.available);
                 sendPresence.addExtension(new ActivityExtension(initialPresence.activity()));
                 sendPresence.addExtension(new CapsExtension("http://www.origin.com/origin", mgr.getCapsVersionAndHash().version, mgr.getCapsVersionAndHash().hash));
+            } else {
+                sendPresence = new Presence(Presence.Type.available);
             }
 
             connection.connect().login();
-            if (sendPresence != null) connection.sendStanza(sendPresence);
+            connection.sendStanza(sendPresence);
 
             this.user = connection.getUser();
             this.pings = PingManager.getInstanceFor(connection);
@@ -210,6 +214,7 @@ public final class DefaultOrigin implements Origin {
         chatResource.clear();
         friendResource.clear();
         presenceResource.clear();
+        lobbyResource.clear();
     }
 
     /**
@@ -219,12 +224,15 @@ public final class DefaultOrigin implements Origin {
         chatResource = chatResource == null ? new ChatResourceImpl(connection) : chatResource.reinitialize(connection);
         friendResource = friendResource == null ? new FriendResourceImpl(connection) : friendResource.reinitialize(connection);
         presenceResource = presenceResource == null ? new PresenceResourceImpl(connection) : presenceResource.reinitialize(connection);
+        lobbyResource = lobbyResource == null ? new LobbyResourceImpl(connection) : lobbyResource.reinitialize(connection);
     }
 
     @Override
     public void disconnect() {
         chatResource.dispose();
         friendResource.dispose();
+        presenceResource.dispose();
+        lobbyResource.dispose();
         nadir.close();
 
         pings.setPingInterval(-1);
@@ -259,6 +267,11 @@ public final class DefaultOrigin implements Origin {
     @Override
     public PresenceResource presence() {
         return presenceResource;
+    }
+
+    @Override
+    public LobbyResource lobby() {
+        return lobbyResource;
     }
 
     @Override

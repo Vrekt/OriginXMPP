@@ -6,6 +6,7 @@ import me.vrekt.origin.chat.implementation.ChatResource;
 import me.vrekt.origin.exception.XMPPAuthenticationException;
 import me.vrekt.origin.friend.implementation.FriendResource;
 import me.vrekt.origin.listener.ConnectListener;
+import me.vrekt.origin.lobby.implementation.LobbyResource;
 import me.vrekt.origin.presence.GameTextPresence;
 import me.vrekt.origin.presence.implementation.PresenceResource;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -58,6 +59,11 @@ public interface Origin {
      * @return the internal instance of {@link PresenceResource}
      */
     PresenceResource presence();
+
+    /**
+     * @return the internal instance of {@link LobbyResource}
+     */
+    LobbyResource lobby();
 
     /**
      * @return the internal connection instance.
