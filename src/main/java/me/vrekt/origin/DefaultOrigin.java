@@ -10,6 +10,7 @@ import me.vrekt.origin.friend.FriendService;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.StreamError;
+import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.ping.PingManager;
@@ -72,6 +73,8 @@ public final class DefaultOrigin implements Origin {
                             .setPort(SERVICE_PORT)
                             .setResource("origin")
                             .build());
+
+            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
             connection.connect().login();
             this.user = connection.getUser();

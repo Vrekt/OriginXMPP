@@ -18,12 +18,9 @@ public final class DefaultFriendService implements FriendService {
     private final CopyOnWriteArrayList<FriendListener> listeners = new CopyOnWriteArrayList<>();
     private final PacketListener packetListener = new PacketListener();
     private final XMPPTCPConnection connection;
-    private final Origin origin;
 
     public DefaultFriendService(final Origin origin) {
         this.connection = origin.connection();
-        this.origin = origin;
-
         connection.addAsyncStanzaListener(packetListener, new StanzaTypeFilter(Presence.class));
     }
 
@@ -52,11 +49,25 @@ public final class DefaultFriendService implements FriendService {
     public void removeFriend(Long userId) throws OriginException {
         try {
             final var to = JidCreate.bareFromOrThrowUnchecked(userId + "@" + Origin.CHAT_DOMAIN);
-            final var unavailable = new Presence(to, Presence.Type.unavailable);
-            final var unsubscribe = new Presence(to, Presence.Type.unsubscribe);
+            final var unavailable = new Presence(to, Presence.Type.subscribed);
+            final var unsubscribe = new Presence(to, Presence.Type.available);
 
             connection.sendStanza(unavailable);
             connection.sendStanza(unsubscribe);
+        } catch (final SmackException.NotConnectedException | InterruptedException exception) {
+            throw new OriginException("Could not send request!", exception.getCause());
+        }
+    }
+
+    @Override
+    public void addFriend(Long userId) throws OriginException {
+        try {
+            final var to = JidCreate.bareFromOrThrowUnchecked(userId + "@" + Origin.CHAT_DOMAIN);
+            final var subscribed = new Presence(to, Presence.Type.subscribed);
+            final var available = new Presence(to, Presence.Type.available);
+
+            connection.sendStanza(subscribed);
+            connection.sendStanza(available);
         } catch (final SmackException.NotConnectedException | InterruptedException exception) {
             throw new OriginException("Could not send request!", exception.getCause());
         }

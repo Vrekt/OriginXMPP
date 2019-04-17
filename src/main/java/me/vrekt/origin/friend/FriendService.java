@@ -35,4 +35,12 @@ public interface FriendService extends AutoCloseable {
      */
     void removeFriend(Long userId) throws OriginException;
 
+    /**
+     * Attempts to add the friend.
+     *
+     * @param userId their user ID.
+     * @throws OriginException if an {@link org.jivesoftware.smack.SmackException.NotConnectedException} or {@link InterruptedException} occurred.
+     */
+    void addFriend(Long userId) throws OriginException;
+
 }
