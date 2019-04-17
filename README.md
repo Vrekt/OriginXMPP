@@ -79,3 +79,14 @@ origin.friend().addFriendListener(new FriendListener() {
 ```
 origin.presence().setGameTextPresence(new GameTextPresence("Your text here", "Your text here"));
 ```
+
+# Listeners
+```
+            origin.onConnect(() -> {
+                // start code
+            });
+
+            origin.onReconnect(() -> {
+                // stop code temporarily
+            });
+```
