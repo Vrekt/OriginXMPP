@@ -2,9 +2,12 @@ package me.vrekt.origin;
 
 import io.github.robertograham.nadir.Account;
 import io.github.robertograham.nadir.Nadir;
-import me.vrekt.origin.chat.ChatService;
-import me.vrekt.origin.exception.OriginException;
-import me.vrekt.origin.friend.FriendService;
+import me.vrekt.origin.chat.implementation.ChatResource;
+import me.vrekt.origin.exception.XMPPAuthenticationException;
+import me.vrekt.origin.friend.implementation.FriendResource;
+import me.vrekt.origin.listener.ConnectListener;
+import me.vrekt.origin.presence.GameTextPresence;
+import me.vrekt.origin.presence.implementation.PresenceResource;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jxmpp.jid.Jid;
 
@@ -16,9 +19,9 @@ public interface Origin {
     /**
      * Attempts to connect the XMPP service.
      *
-     * @throws OriginException if an error occurred while attempting to connect to the XMPP service.
+     * @throws XMPPAuthenticationException if an error occurred attempting to connect to the XMPP service.
      */
-    void connect() throws OriginException;
+    void connect() throws XMPPAuthenticationException;
 
     /**
      * Disconnects from the XMPP service, closes all services, and closes the {@link Nadir} instance.
@@ -42,19 +45,49 @@ public interface Origin {
     Jid user();
 
     /**
-     * @return the internal instance of {@link ChatService}.
+     * @return the internal instance of {@link ChatResource}.
      */
-    ChatService chat();
+    ChatResource chat();
 
     /**
-     * @return the internal instance of {@link FriendService}
+     * @return the internal instance of {@link FriendResource}
      */
-    FriendService friend();
+    FriendResource friend();
+
+    /**
+     * @return the internal instance of {@link PresenceResource}
+     */
+    PresenceResource presence();
 
     /**
      * @return the internal connection instance.
      */
     XMPPTCPConnection connection();
+
+    /**
+     * Adds a new {@link ConnectListener}
+     *
+     * @param listener the listener
+     */
+    void onConnect(final ConnectListener listener);
+
+    /**
+     * Adds a new {@link ConnectListener}
+     *
+     * @param listener the listener
+     */
+    void onReconnect(final ConnectListener listener);
+
+    /**
+     * Disables automatic reconnect after the {@link io.github.robertograham.nadir.Token} expires.
+     */
+    void disableAutomaticReconnect();
+
+    /**
+     * Enables automatic reconnect after the {@link io.github.robertograham.nadir.Token} expires.
+     * Enabled by default.
+     */
+    void enableAutomaticReconnect();
 
     /**
      * Builds a new instance of {@link Origin}
@@ -70,11 +103,34 @@ public interface Origin {
     /**
      * Builds a new instance of {@link Origin}
      *
+     * @param emailAddress the email address of the account.
+     * @param password     the password of the account.
+     * @param presence     the initial presence to send on connect
+     * @return a new instance of {@link Origin}
+     */
+    static Origin newOrigin(String emailAddress, String password, final GameTextPresence presence) {
+        return new DefaultOrigin(emailAddress, password, presence);
+    }
+
+    /**
+     * Builds a new instance of {@link Origin}
+     *
      * @param nadir the already built instance of {@link Nadir}
      * @return a new instance of {@link Origin}
      */
     static Origin newOrigin(Nadir nadir) {
         return new DefaultOrigin(nadir);
+    }
+
+    /**
+     * Builds a new instance of {@link Origin}
+     *
+     * @param nadir    the already built instance of {@link Nadir}
+     * @param presence the initial presence to send on connect
+     * @return a new instance of {@link Origin}
+     */
+    static Origin newOrigin(final Nadir nadir, final GameTextPresence presence) {
+        return new DefaultOrigin(nadir, presence);
     }
 
 }
