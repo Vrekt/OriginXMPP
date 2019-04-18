@@ -16,6 +16,11 @@ public final class PresenceResourceImpl implements PresenceResource, ResourceIni
     private XMPPTCPConnection connection;
     private EntityCapsManager capsManager;
 
+    /**
+     * Initialize this resource
+     *
+     * @param connection the XMPP connection
+     */
     public PresenceResourceImpl(final XMPPTCPConnection connection) {
         this.connection = connection;
         this.capsManager = EntityCapsManager.getInstanceFor(connection);

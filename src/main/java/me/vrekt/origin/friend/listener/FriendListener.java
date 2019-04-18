@@ -20,4 +20,13 @@ public interface FriendListener {
 
     }
 
+    /**
+     * Invoked when a friend removed the current account
+     *
+     * @param userId the ID of the user
+     */
+    default void onFriendRemoved(final Long userId) {
+
+    }
+
 }

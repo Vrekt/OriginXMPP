@@ -137,7 +137,8 @@ public final class DefaultOrigin implements Origin {
 
             connection.setFromMode(XMPPConnection.FromMode.USER);
             // accept all roster entries.
-            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
+            final var roster = Roster.getInstanceFor(connection);
+            roster.setSubscriptionMode(Roster.SubscriptionMode.manual);
 
             // enable caps manager for activity.
             final var mgr = EntityCapsManager.getInstanceFor(connection);
@@ -156,6 +157,7 @@ public final class DefaultOrigin implements Origin {
 
             connection.connect().login();
             connection.sendStanza(sendPresence);
+            roster.reloadAndWait();
 
             this.user = connection.getUser();
             this.pings = PingManager.getInstanceFor(connection);
@@ -168,7 +170,6 @@ public final class DefaultOrigin implements Origin {
                 scheduled = true;
             }
             initializeAll();
-
             if (listeners.containsKey(Boolean.TRUE)) {
                 listeners.get(Boolean.TRUE).forEach(ConnectListener::onConnectOrReconnect);
             }
