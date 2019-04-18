@@ -137,7 +137,7 @@ public final class DefaultOrigin implements Origin {
 
             connection.setFromMode(XMPPConnection.FromMode.USER);
             // accept all roster entries.
-            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.accept_all);
+            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
             // enable caps manager for activity.
             final var mgr = EntityCapsManager.getInstanceFor(connection);
