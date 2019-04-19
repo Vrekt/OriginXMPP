@@ -50,10 +50,10 @@ public final class ActivityExtension implements ExtensionElement {
         xml.xmlnsAttribute(NAMESPACE).rightAngleBracket();
         xml.halfOpenElement("relaxing");
         xml.xmlnsAttribute(NAMESPACE).rightAngleBracket();
-        xml.halfOpenElement("gaming");
+        xml.halfOpenElement("gaming ");
         xml.xmlnsAttribute(NAMESPACE).closeEmptyElement();
         xml.closeElement("relaxing");
-        xml.element("text", text).closeEmptyElement();
+        xml.element("text", text);
         xml.closeElement("activity");
         return xml;
     }

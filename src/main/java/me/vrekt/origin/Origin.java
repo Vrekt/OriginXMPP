@@ -96,6 +96,11 @@ public interface Origin {
     void enableAutomaticReconnect();
 
     /**
+     * Enables XMPP debugging.
+     */
+    void enableXmppDebugging();
+
+    /**
      * Builds a new instance of {@link Origin}
      *
      * @param emailAddress the email address of the account.

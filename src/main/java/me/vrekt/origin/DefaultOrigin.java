@@ -6,6 +6,7 @@ import me.vrekt.origin.chat.implementation.ChatResource;
 import me.vrekt.origin.chat.implementation.ChatResourceImpl;
 import me.vrekt.origin.exception.XMPPAuthenticationException;
 import me.vrekt.origin.extension.ActivityExtension;
+import me.vrekt.origin.extension.CustomCapsExtension;
 import me.vrekt.origin.friend.implementation.FriendResource;
 import me.vrekt.origin.friend.implementation.FriendResourceImpl;
 import me.vrekt.origin.listener.ConnectListener;
@@ -14,6 +15,7 @@ import me.vrekt.origin.lobby.implementation.LobbyResourceImpl;
 import me.vrekt.origin.presence.GameTextPresence;
 import me.vrekt.origin.presence.implementation.PresenceResource;
 import me.vrekt.origin.presence.implementation.PresenceResourceImpl;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -24,7 +26,6 @@ import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
-import org.jivesoftware.smackx.caps.packet.CapsExtension;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jxmpp.jid.Jid;
 
@@ -148,14 +149,15 @@ public final class DefaultOrigin implements Origin {
 
             Presence sendPresence;
             if (initialPresence != null) {
-                sendPresence = new Presence(Presence.Type.available, initialPresence.status(), 0, Presence.Mode.available);
+                sendPresence = new Presence(Presence.Type.available);
+                sendPresence.setStatus(initialPresence.status());
                 sendPresence.addExtension(new ActivityExtension(initialPresence.activity()));
-                sendPresence.addExtension(new CapsExtension("http://www.origin.com/origin", mgr.getCapsVersionAndHash().version, mgr.getCapsVersionAndHash().hash));
+                sendPresence.addExtension(new CustomCapsExtension("http://www.origin.com/origin", mgr.getCapsVersionAndHash().version, mgr.getCapsVersionAndHash().hash));
             } else {
                 sendPresence = new Presence(Presence.Type.available);
             }
-
             connection.connect().login();
+
             connection.sendStanza(sendPresence);
             roster.reloadAndWait();
 
@@ -307,5 +309,10 @@ public final class DefaultOrigin implements Origin {
             reconnectFuture = service.schedule(this::reconnect, expiresWhen, TimeUnit.MILLISECONDS);
             scheduled = true;
         }
+    }
+
+    @Override
+    public void enableXmppDebugging() {
+        SmackConfiguration.DEBUG = true;
     }
 }

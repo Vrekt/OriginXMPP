@@ -2,13 +2,13 @@ package me.vrekt.origin.presence.implementation;
 
 import com.google.common.flogger.FluentLogger;
 import me.vrekt.origin.extension.ActivityExtension;
+import me.vrekt.origin.extension.CustomCapsExtension;
 import me.vrekt.origin.presence.GameTextPresence;
 import me.vrekt.origin.resource.ResourceInitializer;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
-import org.jivesoftware.smackx.caps.packet.CapsExtension;
 
 public final class PresenceResourceImpl implements PresenceResource, ResourceInitializer<PresenceResourceImpl> {
     private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
@@ -28,17 +28,19 @@ public final class PresenceResourceImpl implements PresenceResource, ResourceIni
 
     @Override
     public void setGameTextPresence(final GameTextPresence presence) {
-        final var sendPresence = new Presence(Presence.Type.available, presence.status(), 0, Presence.Mode.available);
+        final var sendPresence = new Presence(Presence.Type.available);
+        sendPresence.setStatus(presence.status());
         sendPresence.addExtension(new ActivityExtension(presence.activity()));
-        sendPresence.addExtension(new CapsExtension("http://www.origin.com/origin", capsManager.getCapsVersionAndHash().version, capsManager.getCapsVersionAndHash().hash));
+        sendPresence.addExtension(new CustomCapsExtension("http://www.origin.com/origin", capsManager.getCapsVersionAndHash().version, capsManager.getCapsVersionAndHash().hash));
         send(sendPresence);
     }
 
     @Override
     public void setRawTextPresence(final String status, final String activity) {
-        final var sendPresence = new Presence(Presence.Type.available, status, 0, Presence.Mode.available);
+        final var sendPresence = new Presence(Presence.Type.available);
+        sendPresence.setStatus(status);
         sendPresence.addExtension(new ActivityExtension(activity));
-        sendPresence.addExtension(new CapsExtension("http://www.origin.com/origin", capsManager.getCapsVersionAndHash().version, capsManager.getCapsVersionAndHash().hash));
+        sendPresence.addExtension(new CustomCapsExtension("http://www.origin.com/origin", capsManager.getCapsVersionAndHash().version, capsManager.getCapsVersionAndHash().hash));
         send(sendPresence);
     }
 
